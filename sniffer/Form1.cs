@@ -48,7 +48,7 @@ namespace sniffer
                 return;
             }
 
-            selectedDevice.OnPacketArrival += (senderDevice, eArgs) =>
+            selectedDevice.OnPacketArrival += (Device, eArgs) =>
             {
                 PacketHandler(eArgs.Packet);
             };
