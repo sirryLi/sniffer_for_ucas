@@ -8,4 +8,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="PacketDotNet">
+      <HintPath>D:\mingw-64\SharpPcap-4.2.0\Debug\PacketDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpPcap">
+      <HintPath>D:\mingw-64\SharpPcap-4.2.0\Debug\SharpPcap.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
