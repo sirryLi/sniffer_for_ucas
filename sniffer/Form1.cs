@@ -106,7 +106,8 @@ namespace sniffer
                 {
                     string sourceIp = ipPacket.SourceAddress.ToString();
                     string destinationIp = ipPacket.DestinationAddress.ToString();
-                    string protocol = ipPacket.Protocol.ToString();
+                    string protocol = ipPacket.Protocol.ToString();  
+                    string data = ipPacket.PayloadData.ToString();
 
                     ListViewItem item = new ListViewItem(new[] { sourceIp, destinationIp, protocol });
 
