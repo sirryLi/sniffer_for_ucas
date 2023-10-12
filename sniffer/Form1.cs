@@ -6,16 +6,18 @@ using System.Windows.Forms;
 
 namespace sniffer
 {
-    public partial class Form1 : Form
+    public partial class NetworkSnifferForm : Form
     {
         private CaptureDeviceList devices;
         private ICaptureDevice selectedDevice;
-        public Form1()
+        public NetworkSnifferForm()
         {
             InitializeComponent();
         }
         private void NetworkSnifferForm_Load(object sender, EventArgs e)
         {
+            startButton.Enabled = false;
+            stopButton.Enabled = false;
             devices = CaptureDeviceList.Instance;
             if (devices.Count == 0)
             {
@@ -38,6 +40,8 @@ namespace sniffer
         private void deviceselectBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             selectedDevice = devices[deviceselectBox.SelectedIndex];
+            startButton.Enabled = true;
+
         }
 
         private void startButton_Click(object sender, EventArgs e)
@@ -48,13 +52,15 @@ namespace sniffer
                 return;
             }
 
-            selectedDevice.OnPacketArrival += (Device, eArgs) =>
-            {
-                PacketHandler(eArgs.Packet);
-            };
-
             selectedDevice.Open(DeviceMode.Promiscuous);
             selectedDevice.StartCapture();
+
+            selectedDevice.OnPacketArrival += (Device, e) =>
+            {
+                PacketHandler(Packet.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data));
+            };
+
+            
 
             startButton.Enabled = false;
             stopButton.Enabled = true;
@@ -71,11 +77,12 @@ namespace sniffer
 
         private void PacketHandler(Packet packet)
         {
-            EthernetPacket ethernetPacket = packet.Extract<EthernetPacket>();
+            /// EthernetPacket ethernetPacket;
+            //ethernetPacket = packet.Extract(ethernetPacket);
 
-            if (ethernetPacket != null)
+            if (packet != null)
             {
-                IpPacket ipPacket = ethernetPacket.PayloadPacket as IpPacket;
+                IpPacket ipPacket = packet.PayloadPacket as IpPacket;
 
                 if (ipPacket != null)
                 {
@@ -95,7 +102,7 @@ namespace sniffer
             }
             else
             {
-                packetTextBox.AppendText(text);
+                packetlistBox.Items.Add(text);
             }
         }
 
