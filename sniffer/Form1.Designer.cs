@@ -31,44 +31,49 @@
             deviceselectBox = new ComboBox();
             startButton = new Button();
             stopButton = new Button();
-            packetlistBox = new ListBox();
+            packetlistBox = new ListView();
             SuspendLayout();
             // 
             // deviceselectBox
             // 
             deviceselectBox.FormattingEnabled = true;
-            deviceselectBox.Location = new Point(52, 50);
+            deviceselectBox.Location = new Point(314, 49);
             deviceselectBox.Name = "deviceselectBox";
-            deviceselectBox.Size = new Size(232, 28);
+            deviceselectBox.Size = new Size(452, 28);
             deviceselectBox.TabIndex = 0;
             deviceselectBox.SelectedIndexChanged += deviceselectBox_SelectedIndexChanged;
             // 
             // startButton
             // 
-            startButton.Location = new Point(314, 50);
+            startButton.Location = new Point(790, 48);
             startButton.Name = "startButton";
             startButton.Size = new Size(88, 28);
             startButton.TabIndex = 1;
             startButton.Text = "开始抓包";
             startButton.UseVisualStyleBackColor = false;
+            startButton.Click += startButton_Click;
             // 
             // stopButton
             // 
-            stopButton.Location = new Point(430, 50);
+            stopButton.Location = new Point(895, 50);
             stopButton.Name = "stopButton";
             stopButton.Size = new Size(84, 27);
             stopButton.TabIndex = 2;
             stopButton.Text = "停止抓包";
             stopButton.UseVisualStyleBackColor = true;
+            stopButton.Click += stopButton_Click;
             // 
             // packetlistBox
             // 
-            packetlistBox.FormattingEnabled = true;
-            packetlistBox.ItemHeight = 20;
-            packetlistBox.Location = new Point(314, 101);
+            packetlistBox.Location = new Point(314, 108);
             packetlistBox.Name = "packetlistBox";
-            packetlistBox.Size = new Size(665, 344);
+            packetlistBox.Size = new Size(679, 365);
+            packetlistBox.View = View.Details;
+            packetlistBox.Columns.Add("源IP",120);
+            packetlistBox.Columns.Add("目的IP",120);
+            packetlistBox.Columns.Add("协议");
             packetlistBox.TabIndex = 3;
+            packetlistBox.UseCompatibleStateImageBehavior = false;
             // 
             // NetworkSnifferForm
             // 
@@ -79,18 +84,18 @@
             Controls.Add(stopButton);
             Controls.Add(startButton);
             Controls.Add(deviceselectBox);
-            ImeMode = ImeMode.NoControl;
             Name = "NetworkSnifferForm";
             Text = "sniffer-lsy";
             Load += NetworkSnifferForm_Load;
             ResumeLayout(false);
         }
 
+
         #endregion
 
         private ComboBox deviceselectBox;
         private Button startButton;
         private Button stopButton;
-        private ListBox packetlistBox;
+        private ListView packetlistBox;
     }
 }
