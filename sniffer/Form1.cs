@@ -7,6 +7,8 @@ using SharpPcap.WinPcap;
 using SharpPcap.LibPcap;
 using System.Text.RegularExpressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace sniffer
 {
@@ -120,11 +122,12 @@ namespace sniffer
 
                         string sourceIp = ipPacket.SourceAddress.ToString();
                         string destinationIp = ipPacket.DestinationAddress.ToString();
-                        string ipversion = ipPacket.Version.ToString();
                         string protocol = ipPacket.Protocol.ToString();
+                        int length = ipPacket.TotalLength;
 
                         //string data = ipPacket.PayloadData.ToString();
-                        ListViewItem item = new ListViewItem(new[] { no.ToString(), TimeString, sourceIp, destinationIp, ipversion, protocol });
+                        ListViewItem item = new ListViewItem(new[] { no.ToString(), TimeString, sourceIp,
+                                                                    destinationIp, protocol,length.ToString() });
 
                         UpdateTextBox(item);
                     }
@@ -152,32 +155,33 @@ namespace sniffer
                 int selectedIndex = packetlistBox.SelectedItems[0].Index;
                 if (selectedIndex >= 0 && selectedIndex < captured.Count)
                 {
-                    // 获取选中项对应的包的详细信息
                     EthernetPacket selectedPacket = captured[selectedIndex];
 
-                    // 在文本框中显示包的详细信息
-                    infoBox.Text = selectedPacket.Bytes;
+                    // 16进制
+                    DisplayHexData(selectedPacket);
+                    // todo 详细字段////////////////////
+
                 }
             }
+        }
+        private void DisplayHexData(EthernetPacket packet)
+        {
+            // 将数据包字节数组以十六进制格式显示在 RichTextBox 中
+            StringBuilder hexBuilder = new StringBuilder();
+
+            foreach (byte b in packet.Bytes)
+            {
+                hexBuilder.Append(b.ToString("X2") + " ");
+            }
+
+            infoBox.Text = hexBuilder.ToString();
         }
 
         private void saveFileDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
             //string fileName = saveFileDialog.FileName;
 
-            // 创建一个 PCAP 写入器
-            //CaptureFileWriterDevice pcapWriter = new CaptureFileWriterDevice(fileName);
-
-
-            //
-            //pcapWriter.Write(captured);
-
-
-            // 关闭 PCAP 文件
-            // pcapWriter.Close();
-
-            //MessageBox.Show("数据包已保存为 PCAP 文件：" + fileName, "保存成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+           //todo 
 
         }
     }
