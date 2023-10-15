@@ -1,4 +1,6 @@
-﻿namespace sniffer
+﻿using System.Windows.Forms;
+
+namespace sniffer
 {
     partial class NetworkSnifferForm
     {
@@ -32,6 +34,8 @@
             startButton = new Button();
             stopButton = new Button();
             packetlistBox = new ListView();
+            saveFileDialog = new SaveFileDialog();
+            infoBox = new RichTextBox();
             SuspendLayout();
             // 
             // deviceselectBox
@@ -41,6 +45,7 @@
             deviceselectBox.Name = "deviceselectBox";
             deviceselectBox.Size = new Size(452, 28);
             deviceselectBox.TabIndex = 0;
+            deviceselectBox.Text = "请选择抓包设备";
             deviceselectBox.SelectedIndexChanged += deviceselectBox_SelectedIndexChanged;
             // 
             // startButton
@@ -65,21 +70,43 @@
             // 
             // packetlistBox
             // 
-            packetlistBox.Location = new Point(314, 108);
+            packetlistBox.Location = new Point(314, 98);
             packetlistBox.Name = "packetlistBox";
-            packetlistBox.Size = new Size(679, 365);
-            packetlistBox.View = View.Details;
-            packetlistBox.Columns.Add("源IP",120);
-            packetlistBox.Columns.Add("目的IP",120);
-            packetlistBox.Columns.Add("协议");
+            packetlistBox.Size = new Size(784, 321);
             packetlistBox.TabIndex = 3;
             packetlistBox.UseCompatibleStateImageBehavior = false;
+            packetlistBox.View = View.Details;
+            packetlistBox.Columns.Add("No.", 100);
+            packetlistBox.Columns.Add("Time", 100);
+            packetlistBox.Columns.Add("Source", 100);
+            packetlistBox.Columns.Add("Destination", 100);
+            packetlistBox.Columns.Add("Protocal", 100);
+            packetlistBox.Columns.Add("Length", 100);
+            packetlistBox.Columns.Add("Info", 200);
+            packetlistBox.SelectedIndexChanged += packetlistBox_SelectedIndexChanged;
+            packetlistBox.MultiSelect = true;  // 启用多选
+            packetlistBox.FullRowSelect = true;
+            // 
+            // saveFileDialog
+            // 
+            saveFileDialog.Filter = "PCAP Files (*.pcap)|*.pcap";
+            saveFileDialog.Title = "Save Captured Packets as PCAP";
+            saveFileDialog.FileOk += saveFileDialog_FileOk;
+            // 
+            // infoBox
+            // 
+            infoBox.Location = new Point(314, 439);
+            infoBox.Name = "infoBox";
+            infoBox.Size = new Size(784, 161);
+            infoBox.TabIndex = 4;
+            infoBox.Text = "";
             // 
             // NetworkSnifferForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1139, 706);
+            Controls.Add(infoBox);
             Controls.Add(packetlistBox);
             Controls.Add(stopButton);
             Controls.Add(startButton);
@@ -97,5 +124,7 @@
         private Button startButton;
         private Button stopButton;
         private ListView packetlistBox;
+        private SaveFileDialog saveFileDialog;
+        private RichTextBox infoBox;
     }
 }
