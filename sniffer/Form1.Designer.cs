@@ -47,6 +47,7 @@ namespace sniffer
             label1 = new Label();
             label2 = new Label();
             button1 = new Button();
+            button2 = new Button();
             SuspendLayout();
             // 
             // deviceselectBox
@@ -174,11 +175,22 @@ namespace sniffer
             button1.UseVisualStyleBackColor = true;
             button1.Click += filter_click;
             // 
+            // button2
+            // 
+            button2.Location = new Point(150, 150);
+            button2.Name = "button2";
+            button2.Size = new Size(94, 29);
+            button2.TabIndex = 10;
+            button2.Text = "取消筛选";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += reload;
+            // 
             // NetworkSnifferForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1139, 706);
+            Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(label2);
             Controls.Add(label1);
@@ -216,5 +228,6 @@ namespace sniffer
         private ColumnHeader columnHeader4;
         private ColumnHeader columnHeader5;
         private ColumnHeader columnHeader6;
+        private Button button2;
     }
 }

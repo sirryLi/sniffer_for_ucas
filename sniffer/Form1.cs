@@ -281,6 +281,22 @@ namespace sniffer
 
             }
         }
+
+        private void reload(object sender, EventArgs e)
+        {
+            packetlistBox.Items.Clear();
+
+            // 将筛选后的数据包添加到 ListView
+
+            foreach (packet_details packet in captured)
+            {
+                ListViewItem item = new ListViewItem(new[] { packet.Index.ToString(), packet.TimeString, packet.SourceAddress, packet.DestinationAddress,
+                                                                    packet.Protocol,packet.Length.ToString()});
+                //ListViewItem item = new ListViewItem(new[] { no.ToString(), TimeString, sourceIp,
+                //                                                    destinationIp, protocol,length.ToString() });
+                packetlistBox.Items.Add(item);
+            }
+        }
     }
 }
 
