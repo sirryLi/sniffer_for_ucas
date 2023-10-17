@@ -18,7 +18,7 @@ namespace sniffer
     {
         private WinPcapDeviceList devices;
         private ICaptureDevice selectedDevice;
-        private List<EthernetPacket> captured = new List<EthernetPacket>();
+        private List<packet_details> captured = new List<packet_details>();
         public NetworkSnifferForm()
         {
             InitializeComponent();
@@ -115,7 +115,6 @@ namespace sniffer
             {
                 if (packet is EthernetPacket ethernetPacket)
                 {
-                    captured.Add(ethernetPacket);
                     IpPacket ipPacket = ethernetPacket.PayloadPacket as IpPacket;
 
                     if (ipPacket != null)
@@ -126,6 +125,8 @@ namespace sniffer
                         string destinationIp = ipPacket.DestinationAddress.ToString();
                         string protocol = ipPacket.Protocol.ToString();
                         int length = ipPacket.TotalLength;
+
+                        captured.Add(new packet_details(no, TimeString, destinationIp, sourceIp, protocol, length, ethernetPacket));
 
                         //string data = ipPacket.PayloadData.ToString();
                         ListViewItem item = new ListViewItem(new[] { no.ToString(), TimeString, sourceIp,
@@ -157,10 +158,10 @@ namespace sniffer
                 int selectedIndex = packetlistBox.SelectedItems[0].Index;
                 if (selectedIndex >= 0 && selectedIndex < captured.Count)
                 {
-                    EthernetPacket selectedPacket = captured[selectedIndex];
+                    packet_details selectedPacket = captured[selectedIndex];
 
                     // 16进制
-                    DisplayHexData(selectedPacket);
+                    DisplayHexData(selectedPacket.Packet);
                     // todo 详细字段////////////////////
 
                 }
@@ -193,58 +194,93 @@ namespace sniffer
             string ip = ipBox.Text;
 
             // 执行数据包过滤
-            FilterPackets(pro,ip);
+            FilterPackets(pro, ip);
         }
-        private void FilterPackets(string pro,string ip)
+        private void FilterPackets(string pro, string ip)
         {
-            // 使用过滤文本筛选数据包
-            List<EthernetPacket> filteredPackets = new List<EthernetPacket>();
-
-            foreach (EthernetPacket packet in captured)
+            List<packet_details> filteredPackets = new List<packet_details>();
+            if (ip != "" && pro != "")
             {
-                // 在此处实现你的过滤逻辑，例如根据协议类型或IP地址
-                // 这是一个示例过滤逻辑，你可以根据实际需求修改
-                if (packet.PayloadPacket is IpPacket)
+                foreach (packet_details packet in captured)
                 {
-                    IpPacket ipPacket = (IpPacket)packet.PayloadPacket;
-                    if (ipPacket.DestinationAddress.ToString() == ip || ipPacket.SourceAddress.ToString() == ip)
+                    if ((packet.DestinationAddress == ip || packet.SourceAddress == ip) && packet.Protocol == pro)
                     {
                         filteredPackets.Add(packet);
                     }
                 }
+            }
+            else if (ip != "" && pro == "")
+            {
+                foreach (packet_details packet in captured)
+                {
+                    // 在此处实现你的过滤逻辑，例如根据协议类型或IP地址
+                    // 这是一个示例过滤逻辑，你可以根据实际需求修改
+                    if (packet.DestinationAddress == ip || packet.SourceAddress == ip)
+                    {
+                        filteredPackets.Add(packet);
+                    }
+                }
+            }
+            else if (ip == "" && pro != "")
+            {
+                foreach (packet_details packet in captured)
+                {
+                    // 在此处实现你的过滤逻辑，例如根据协议类型或IP地址
+                    // 这是一个示例过滤逻辑，你可以根据实际需求修改
+                    if (packet.Protocol == pro)
+                    {
+                        filteredPackets.Add(packet);
+                    }
+                }
+            }
+            else
+            {
+                return;
             }
 
             // 更新 ListView 中的数据包列表
             UpdateListViewWithFilteredPackets(filteredPackets);
         }
 
-        private void UpdateListViewWithFilteredPackets(List<EthernetPacket> packets)
+        private void UpdateListViewWithFilteredPackets(List<packet_details> packets)
         {
             // 清空 ListView
             packetlistBox.Items.Clear();
 
             // 将筛选后的数据包添加到 ListView
-            int index = 1;
-            foreach (EthernetPacket packet in packets)
-            {
-                ListViewItem item = new ListViewItem(index.ToString());
-                item.SubItems.Add(DateTime.Now.ToString("HH:mm:ss"));
-                item.SubItems.Add("Source MAC");
-                item.SubItems.Add("Destination MAC");
-                item.SubItems.Add("IPv4");
-                item.SubItems.Add(packet.Bytes.Length.ToString());
-                item.SubItems.Add("Packet Info");
 
+            foreach (packet_details packet in packets)
+            {
+                ListViewItem item = new ListViewItem(new[] { packet.Index.ToString(), packet.TimeString, packet.SourceAddress, packet.DestinationAddress,
+                                                                    packet.Protocol,packet.Length.ToString()});
+                //ListViewItem item = new ListViewItem(new[] { no.ToString(), TimeString, sourceIp,
+                //                                                    destinationIp, protocol,length.ToString() });
                 packetlistBox.Items.Add(item);
-                index++;
             }
         }
         private class packet_details
         {
+
+            public int Index { get; set; }
+            public string TimeString { get; set; }
             public string DestinationAddress { get; set; }
             public string SourceAddress { get; set; }
-            public string Bytes { get; set; }
+            public string Protocol { get; set; }
+            public int Length { get; set; }
+            public EthernetPacket Packet { get; set; }
 
+            public packet_details(int index, string timeString, string destinationAddress, string sourceAddress, string protocol, int length, EthernetPacket packet)
+            {
+                Index = index;
+                TimeString = timeString;
+                DestinationAddress = destinationAddress;
+                SourceAddress = sourceAddress;
+                Protocol = protocol;
+                Length = length;
+                Packet = packet;
+
+            }
         }
     }
 }
+
