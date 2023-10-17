@@ -36,6 +36,11 @@ namespace sniffer
             packetlistBox = new ListView();
             saveFileDialog = new SaveFileDialog();
             infoBox = new RichTextBox();
+            textBox1 = new TextBox();
+            textBox2 = new TextBox();
+            label1 = new Label();
+            label2 = new Label();
+            button1 = new Button();
             SuspendLayout();
             // 
             // deviceselectBox
@@ -70,22 +75,14 @@ namespace sniffer
             // 
             // packetlistBox
             // 
+            packetlistBox.FullRowSelect = true;
             packetlistBox.Location = new Point(314, 98);
             packetlistBox.Name = "packetlistBox";
             packetlistBox.Size = new Size(784, 321);
             packetlistBox.TabIndex = 3;
             packetlistBox.UseCompatibleStateImageBehavior = false;
             packetlistBox.View = View.Details;
-            packetlistBox.Columns.Add("No.", 100);
-            packetlistBox.Columns.Add("Time", 100);
-            packetlistBox.Columns.Add("Source", 100);
-            packetlistBox.Columns.Add("Destination", 100);
-            packetlistBox.Columns.Add("Protocal", 100);
-            packetlistBox.Columns.Add("Length", 100);
-            packetlistBox.Columns.Add("Info", 200);
             packetlistBox.SelectedIndexChanged += packetlistBox_SelectedIndexChanged;
-            packetlistBox.MultiSelect = true;  // 启用多选
-            packetlistBox.FullRowSelect = true;
             // 
             // saveFileDialog
             // 
@@ -101,11 +98,58 @@ namespace sniffer
             infoBox.TabIndex = 4;
             infoBox.Text = "";
             // 
+            // protocolBox
+            // 
+            protocolBox.Location = new Point(94, 98);
+            protocolBox.Name = "protocolBox";
+            protocolBox.Size = new Size(125, 27);
+            protocolBox.TabIndex = 5;
+            // 
+            // ipBox
+            // 
+            ipBox.Location = new Point(94, 48);
+            ipBox.Name = "ipBox";
+            ipBox.Size = new Size(125, 27);
+            ipBox.TabIndex = 6;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(35, 52);
+            label1.Name = "label1";
+            label1.Size = new Size(39, 20);
+            label1.TabIndex = 7;
+            label1.Text = "协议";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(35, 101);
+            label2.Name = "label2";
+            label2.Size = new Size(22, 20);
+            label2.TabIndex = 8;
+            label2.Text = "IP";
+            // 
+            // button1
+            // 
+            button1.Location = new Point(94, 150);
+            button1.Name = "button1";
+            button1.Size = new Size(94, 29);
+            button1.TabIndex = 9;
+            button1.Text = "button1";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += filter_click;
+            // 
             // NetworkSnifferForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1139, 706);
+            Controls.Add(button1);
+            Controls.Add(label2);
+            Controls.Add(label1);
+            Controls.Add(ipBox);
+            Controls.Add(protocolBox);
             Controls.Add(infoBox);
             Controls.Add(packetlistBox);
             Controls.Add(stopButton);
@@ -115,6 +159,7 @@ namespace sniffer
             Text = "sniffer-lsy";
             Load += NetworkSnifferForm_Load;
             ResumeLayout(false);
+            PerformLayout();
         }
 
 
@@ -126,5 +171,10 @@ namespace sniffer
         private ListView packetlistBox;
         private SaveFileDialog saveFileDialog;
         private RichTextBox infoBox;
+        private TextBox protocolBox;
+        private TextBox ipBox;
+        private Label label1;
+        private Label label2;
+        private Button button1;
     }
 }

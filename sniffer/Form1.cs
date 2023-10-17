@@ -9,6 +9,8 @@ using System.Text.RegularExpressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
+using PacketDotNet.Ieee80211;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 namespace sniffer
 {
@@ -181,7 +183,67 @@ namespace sniffer
         {
             //string fileName = saveFileDialog.FileName;
 
-           //todo 
+            //todo 
+
+        }
+
+        private void filter_click(object sender, EventArgs e)
+        {
+            string pro = protocolBox.Text;
+            string ip = ipBox.Text;
+
+            // 执行数据包过滤
+            FilterPackets(pro,ip);
+        }
+        private void FilterPackets(string pro,string ip)
+        {
+            // 使用过滤文本筛选数据包
+            List<EthernetPacket> filteredPackets = new List<EthernetPacket>();
+
+            foreach (EthernetPacket packet in captured)
+            {
+                // 在此处实现你的过滤逻辑，例如根据协议类型或IP地址
+                // 这是一个示例过滤逻辑，你可以根据实际需求修改
+                if (packet.PayloadPacket is IpPacket)
+                {
+                    IpPacket ipPacket = (IpPacket)packet.PayloadPacket;
+                    if (ipPacket.DestinationAddress.ToString() == ip || ipPacket.SourceAddress.ToString() == ip)
+                    {
+                        filteredPackets.Add(packet);
+                    }
+                }
+            }
+
+            // 更新 ListView 中的数据包列表
+            UpdateListViewWithFilteredPackets(filteredPackets);
+        }
+
+        private void UpdateListViewWithFilteredPackets(List<EthernetPacket> packets)
+        {
+            // 清空 ListView
+            packetlistBox.Items.Clear();
+
+            // 将筛选后的数据包添加到 ListView
+            int index = 1;
+            foreach (EthernetPacket packet in packets)
+            {
+                ListViewItem item = new ListViewItem(index.ToString());
+                item.SubItems.Add(DateTime.Now.ToString("HH:mm:ss"));
+                item.SubItems.Add("Source MAC");
+                item.SubItems.Add("Destination MAC");
+                item.SubItems.Add("IPv4");
+                item.SubItems.Add(packet.Bytes.Length.ToString());
+                item.SubItems.Add("Packet Info");
+
+                packetlistBox.Items.Add(item);
+                index++;
+            }
+        }
+        private class packet_details
+        {
+            public string DestinationAddress { get; set; }
+            public string SourceAddress { get; set; }
+            public string Bytes { get; set; }
 
         }
     }
