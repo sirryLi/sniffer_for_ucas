@@ -11,6 +11,7 @@ using System.Text;
 using System.ComponentModel.DataAnnotations;
 using PacketDotNet.Ieee80211;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
+using System.Net.NetworkInformation;
 
 namespace sniffer
 {
@@ -103,7 +104,24 @@ namespace sniffer
             selectedDevice.OnPacketArrival += (Device, e) =>
             {
                 TimeSpan timearrival = DateTime.Now - captureStartTime;
-                PacketHandler(no, timearrival, Packet.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data));
+                if (e.Packet.LinkLayerType != LinkLayers.Null)
+                {
+                    PacketHandler(no, timearrival, Packet.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data));
+                }
+                else
+                {
+                    int length = e.Packet.Data.Length - 4;
+
+                    PhysicalAddress sourceMac = PhysicalAddress.Parse("00-00-00-00-00-00");
+                    PhysicalAddress destinationMac = PhysicalAddress.Parse("00-00-00-00-00-00");
+                    EthernetPacket ethernetPacket = new EthernetPacket(destinationMac, sourceMac, EthernetPacketType.IpV4);
+                    byte[] slice = new byte[length+ ethernetPacket.Bytes.Length];
+                    Array.Copy(ethernetPacket.Bytes, 0, slice, 0, ethernetPacket.Bytes.Length);
+                    Array.Copy(e.Packet.Data, 4, slice, ethernetPacket.Bytes.Length, length);
+
+
+                    PacketHandler(no, timearrival, Packet.ParsePacket(LinkLayers.Ethernet, slice));
+                }
                 no++;
             };
             selectedDevice.Open(DeviceMode.Promiscuous);
