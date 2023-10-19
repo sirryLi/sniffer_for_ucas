@@ -190,6 +190,7 @@ namespace sniffer
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1139, 706);
+
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(label2);

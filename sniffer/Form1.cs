@@ -79,8 +79,29 @@ namespace sniffer
             //}          
             if (captured.Count != 0)
             {
-                saveFileDialog.ShowDialog();
-                packetlistBox.Items.Clear();
+                while (true) { 
+                    DialogResult result = MessageBox.Show(
+                    "是否保存已捕获的包",
+                    "选择选项",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question
+                    );
+                    if (result == DialogResult.Yes) { 
+                        saveFileDialog.ShowDialog();
+                        packetlistBox.Items.Clear();
+                        break;
+                    }else if (result == DialogResult.No)
+                    {
+                        packetlistBox.Items.Clear();
+                        break;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    ///cancel donothing
+                }    
+
             }
             startCapture();
 
@@ -115,7 +136,7 @@ namespace sniffer
                     PhysicalAddress sourceMac = PhysicalAddress.Parse("00-00-00-00-00-00");
                     PhysicalAddress destinationMac = PhysicalAddress.Parse("00-00-00-00-00-00");
                     EthernetPacket ethernetPacket = new EthernetPacket(destinationMac, sourceMac, EthernetPacketType.IpV4);
-                    byte[] slice = new byte[length+ ethernetPacket.Bytes.Length];
+                    byte[] slice = new byte[length + ethernetPacket.Bytes.Length];
                     Array.Copy(ethernetPacket.Bytes, 0, slice, 0, ethernetPacket.Bytes.Length);
                     Array.Copy(e.Packet.Data, 4, slice, ethernetPacket.Bytes.Length, length);
 
