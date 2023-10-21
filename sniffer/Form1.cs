@@ -200,8 +200,10 @@ namespace sniffer
                     packet_details selectedPacket = captured[selectedIndex];
 
                     // 16½øÖÆ
-                    DisplayHexData(selectedPacket.Packet);
-                    // todo ÏêÏ¸×Ö¶Î////////////////////
+                    DisplayHexData(selectedPacket.EthPacket, selectedPacket.Looppacket);
+                    string src = selectedPacket.SourceAddress;
+                    string dst = selectedPacket.DestinationAddress;
+                    int sp = selectedPacket.Sp;
 
                 }
             }
