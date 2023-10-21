@@ -48,6 +48,8 @@ namespace sniffer
             label2 = new Label();
             button1 = new Button();
             button2 = new Button();
+            infoBox2 = new RichTextBox();
+            details = new ColumnHeader();
             SuspendLayout();
             // 
             // deviceselectBox
@@ -82,7 +84,7 @@ namespace sniffer
             // 
             // packetlistBox
             // 
-            packetlistBox.Columns.AddRange(new ColumnHeader[] { columnHeader6, columnHeader1, columnHeader3, columnHeader2, columnHeader4, columnHeader5 });
+            packetlistBox.Columns.AddRange(new ColumnHeader[] { columnHeader6, columnHeader1, columnHeader3, columnHeader2, columnHeader4, columnHeader5, details });
             packetlistBox.FullRowSelect = true;
             packetlistBox.Location = new Point(314, 98);
             packetlistBox.Name = "packetlistBox";
@@ -129,7 +131,7 @@ namespace sniffer
             // 
             infoBox.Location = new Point(314, 439);
             infoBox.Name = "infoBox";
-            infoBox.Size = new Size(784, 161);
+            infoBox.Size = new Size(407, 161);
             infoBox.TabIndex = 4;
             infoBox.Text = "";
             // 
@@ -185,12 +187,25 @@ namespace sniffer
             button2.UseVisualStyleBackColor = true;
             button2.Click += reload;
             // 
+            // infoBox2
+            // 
+            infoBox2.Location = new Point(727, 439);
+            infoBox2.Name = "infoBox2";
+            infoBox2.Size = new Size(371, 161);
+            infoBox2.TabIndex = 11;
+            infoBox2.Text = "";
+            // 
+            // details
+            // 
+            details.Text = "details";
+            details.Width = 120;
+            // 
             // NetworkSnifferForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1139, 706);
-
+            Controls.Add(infoBox2);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(label2);
@@ -230,5 +245,7 @@ namespace sniffer
         private ColumnHeader columnHeader5;
         private ColumnHeader columnHeader6;
         private Button button2;
+        private RichTextBox infoBox2;
+        private ColumnHeader details;
     }
 }
