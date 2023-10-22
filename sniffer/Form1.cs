@@ -179,11 +179,6 @@ namespace sniffer
                             UdpPacket udpPacket = ipPacket.PayloadPacket as UdpPacket;
                             srcport = udpPacket.SourcePort;
                             dstport = udpPacket.DestinationPort;
-                        }
-                        else if(protocol == "ICMPV6")
-                        {
-                            ICMPv6Packet iCMPv6Packet = ipPacket.PayloadPacket as ICMPv6Packet;
-
                         }else
                         {
                             srcport = 0; dstport = 0;
@@ -212,14 +207,14 @@ namespace sniffer
 
                     int srcport;
                     int dstport;
-                    if (protocol == "TCP")
+                    if (protocol.ToLower() == "TCP")
                     {
                         TcpPacket Tcp = ipPacket.PayloadPacket as TcpPacket;
                         srcport = Tcp.SourcePort;
                         dstport = Tcp.DestinationPort;
 
                     }
-                    else if (protocol == "UDP")
+                    else if (protocol.ToLower() == "UDP")
                     {
                         UdpPacket udpPacket = ipPacket.PayloadPacket as UdpPacket;
                         srcport = udpPacket.SourcePort;
