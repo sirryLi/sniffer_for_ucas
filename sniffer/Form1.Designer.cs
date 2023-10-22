@@ -30,16 +30,17 @@ namespace sniffer
         /// </summary>
         private void InitializeComponent()
         {
+            ColumnHeader columnHeader6;
             deviceselectBox = new ComboBox();
             startButton = new Button();
             stopButton = new Button();
             packetlistBox = new ListView();
-            columnHeader6 = new ColumnHeader();
             columnHeader1 = new ColumnHeader();
             columnHeader3 = new ColumnHeader();
             columnHeader2 = new ColumnHeader();
             columnHeader4 = new ColumnHeader();
             columnHeader5 = new ColumnHeader();
+            details = new ColumnHeader();
             saveFileDialog = new SaveFileDialog();
             infoBox = new RichTextBox();
             protocolBox = new TextBox();
@@ -49,15 +50,21 @@ namespace sniffer
             button1 = new Button();
             button2 = new Button();
             infoBox2 = new RichTextBox();
-            details = new ColumnHeader();
+
+            columnHeader6 = new ColumnHeader();
+
             SuspendLayout();
+            // 
+            // columnHeader6
+            // 
+            columnHeader6.Text = "No.";
             // 
             // deviceselectBox
             // 
             deviceselectBox.FormattingEnabled = true;
-            deviceselectBox.Location = new Point(314, 49);
+            deviceselectBox.Location = new Point(273, 49);
             deviceselectBox.Name = "deviceselectBox";
-            deviceselectBox.Size = new Size(555, 28);
+            deviceselectBox.Size = new Size(596, 28);
             deviceselectBox.TabIndex = 0;
             deviceselectBox.Text = "请选择抓包设备";
             deviceselectBox.SelectedIndexChanged += deviceselectBox_SelectedIndexChanged;
@@ -86,17 +93,13 @@ namespace sniffer
             // 
             packetlistBox.Columns.AddRange(new ColumnHeader[] { columnHeader6, columnHeader1, columnHeader3, columnHeader2, columnHeader4, columnHeader5, details });
             packetlistBox.FullRowSelect = true;
-            packetlistBox.Location = new Point(314, 98);
+            packetlistBox.Location = new Point(273, 98);
             packetlistBox.Name = "packetlistBox";
-            packetlistBox.Size = new Size(784, 321);
+            packetlistBox.Size = new Size(825, 321);
             packetlistBox.TabIndex = 3;
             packetlistBox.UseCompatibleStateImageBehavior = false;
             packetlistBox.View = View.Details;
             packetlistBox.SelectedIndexChanged += packetlistBox_SelectedIndexChanged;
-            // 
-            // columnHeader6
-            // 
-            columnHeader6.Text = "No.";
             // 
             // columnHeader1
             // 
@@ -121,6 +124,11 @@ namespace sniffer
             // 
             columnHeader5.Text = "length";
             // 
+            // details
+            // 
+            details.Text = "details";
+            details.Width = 100;
+            // 
             // saveFileDialog
             // 
             saveFileDialog.Filter = "PCAP Files (*.pcap)|*.pcap";
@@ -129,7 +137,7 @@ namespace sniffer
             // 
             // infoBox
             // 
-            infoBox.Location = new Point(314, 439);
+            infoBox.Location = new Point(273, 439);
             infoBox.Name = "infoBox";
             infoBox.Size = new Size(407, 161);
             infoBox.TabIndex = 4;
@@ -139,14 +147,14 @@ namespace sniffer
             // 
             protocolBox.Location = new Point(94, 98);
             protocolBox.Name = "protocolBox";
-            protocolBox.Size = new Size(179, 27);
+            protocolBox.Size = new Size(150, 27);
             protocolBox.TabIndex = 5;
             // 
             // ipBox
             // 
-            ipBox.Location = new Point(94, 48);
+            ipBox.Location = new Point(94, 50);
             ipBox.Name = "ipBox";
-            ipBox.Size = new Size(179, 27);
+            ipBox.Size = new Size(150, 27);
             ipBox.TabIndex = 6;
             // 
             // label1
@@ -189,17 +197,13 @@ namespace sniffer
             // 
             // infoBox2
             // 
-            infoBox2.Location = new Point(727, 439);
+
+            infoBox2.Location = new Point(686, 439);
             infoBox2.Name = "infoBox2";
-            infoBox2.Size = new Size(371, 161);
+            infoBox2.Size = new Size(412, 161);
             infoBox2.TabIndex = 11;
             infoBox2.Text = "";
-            // 
-            // details
-            // 
-            details.Text = "details";
-            details.Width = 120;
-            // 
+
             // NetworkSnifferForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);

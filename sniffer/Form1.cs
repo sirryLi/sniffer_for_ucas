@@ -3,7 +3,6 @@ using PacketDotNet;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using SharpPcap.WinPcap;
 using SharpPcap.LibPcap;
 using System.Text.RegularExpressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -18,7 +17,7 @@ namespace sniffer
 {
     public partial class NetworkSnifferForm : Form
     {
-        private WinPcapDeviceList devices;
+        private CaptureDeviceList devices;
         private ICaptureDevice selectedDevice;
         private List<packet_details> captured = new List<packet_details>();
         private bool is_saved = false;
@@ -29,31 +28,16 @@ namespace sniffer
         private void NetworkSnifferForm_Load(object sender, EventArgs e)
         {
             init_info();
-            devices = WinPcapDeviceList.Instance;
+            devices = CaptureDeviceList.Instance;
             if (devices.Count == 0)
             {
-                MessageBox.Show("Î´¼ì²âµ½ÍøÂçÊÊÅäÆ÷¡£");
+                MessageBox.Show("æœªæ£€æµ‹åˆ°ç½‘ç»œé€‚é…å™¨ã€‚");
                 return;
             }
 
             foreach (var dev in devices)
             {
-                Regex regex = new Regex("'([^']*)'");
-                string name;
-                if ((name = dev.Interface.FriendlyName) == null)
-                {
-                    if (dev.Description.Contains("loopback"))
-                    {
-                        name = "±¾µØ»·»Ø";
-                    }
-                    else
-                    {
-                        name = "ÎŞÃû³Æ";
-                    }
-
-                }
-
-                var str = string.Format("¡¾{0}¡¿{1}", name, regex.Match(dev.Description).Groups[1].Value);
+                var str = dev.Description;
                 deviceselectBox.Items.Add(str);
             }
         }
@@ -76,16 +60,16 @@ namespace sniffer
 
             //if (selectedDevice == null)
             //{
-            //    MessageBox.Show("ÇëÑ¡ÔñÒ»¸öÍøÂçÊÊÅäÆ÷¡£");
+            //    MessageBox.Show("è¯·é€‰æ‹©ä¸€ä¸ªç½‘ç»œé€‚é…å™¨ã€‚");
             //    return;
-            //}          //Î´ÊµÏÖ±£´æ
+            //}          //æœªå®ç°ä¿å­˜
             /*if (captured.Count != 0 && is_saved == false)
             {
                 while (true)
                 {
                     DialogResult result = MessageBox.Show(
-                    "ÊÇ·ñ±£´æÒÑ²¶»ñµÄ°ü",
-                    "Ñ¡ÔñÑ¡Ïî",
+                    "æ˜¯å¦ä¿å­˜å·²æ•è·çš„åŒ…",
+                    "é€‰æ‹©é€‰é¡¹",
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Question
                     );
@@ -132,13 +116,17 @@ namespace sniffer
             selectedDevice.OnPacketArrival += (Device, e) =>
             {
                 TimeSpan timearrival = DateTime.Now - captureStartTime;
-                PacketHandler(no, timearrival, e.Packet);
+
+                PacketHandler(no, timearrival, e.GetPacket());
+
 
                 no++;
             };
             try
             {
-                selectedDevice.Open(DeviceMode.Promiscuous);
+
+                selectedDevice.Open(DeviceModes.Promiscuous);
+
                 selectedDevice.StartCapture();
             }
             catch (PcapException ex)
@@ -154,7 +142,9 @@ namespace sniffer
                 if (rawCapture.LinkLayerType != LinkLayers.Null)
                 {
                     EthernetPacket ethernetPacket = Packet.ParsePacket(rawCapture.LinkLayerType, rawCapture.Data) as EthernetPacket;
-                    IpPacket ipPacket = ethernetPacket.PayloadPacket as IpPacket;
+
+                    IPPacket ipPacket = ethernetPacket.PayloadPacket as IPPacket;
+
 
                     if (ipPacket != null)
                     {
@@ -167,14 +157,17 @@ namespace sniffer
 
                         int srcport;
                         int dstport;
-                        if (protocol == "TCP")
+
+                        if (protocol.ToLower() == "tcp")
+
                         {
                             TcpPacket Tcp = ipPacket.PayloadPacket as TcpPacket;
                             srcport = Tcp.SourcePort;
                             dstport = Tcp.DestinationPort;
 
                         }
-                        else if (protocol == "UDP")
+
+                        else if (protocol.ToLower() == "udp")
                         {
                             UdpPacket udpPacket = ipPacket.PayloadPacket as UdpPacket;
                             srcport = udpPacket.SourcePort;
@@ -208,14 +201,15 @@ namespace sniffer
 
                     int srcport;
                     int dstport;
-                    if (protocol == "TCP")
+                    if (protocol.ToLower() == "TCP")
                     {
                         TcpPacket Tcp = ipPacket.PayloadPacket as TcpPacket;
                         srcport = Tcp.SourcePort;
                         dstport = Tcp.DestinationPort;
 
                     }
-                    else if (protocol == "UDP")
+
+                    else if (protocol.ToLower() == "UDP")
                     {
                         UdpPacket udpPacket = ipPacket.PayloadPacket as UdpPacket;
                         srcport = udpPacket.SourcePort;
@@ -289,22 +283,29 @@ namespace sniffer
                 {
                     packet_details selectedPacket = captured[selectedIndex];
 
-                    // 16½øÖÆ
+                    // 16è¿›åˆ¶
                     DisplayHexData(selectedPacket.EthPacket, selectedPacket.Looppacket);
                     string src = selectedPacket.SourceAddress;
                     string dst = selectedPacket.DestinationAddress;
                     int sp = selectedPacket.Sp;
+                    int dp = selectedPacket.Dp;
 
                     foreach (ListViewItem item in packetlistBox.Items)
                     {
                         if ((item.SubItems[2].Text == src && item.SubItems[3].Text == dst) || (item.SubItems[3].Text == src && item.SubItems[2].Text == dst))
                         {
-                            // ¸ßÁÁÏÔÊ¾¾ßÓĞÏàÍ¬µØÖ·µÄÏîÄ¿
-                            item.BackColor = Color.LightGreen;
+                            int ind = int.Parse(item.SubItems[0].Text) - 1;
+                            int Sp = captured[ind].Sp;
+                            int Dp = captured[ind].Dp;
+                            if ((sp == Sp && dp == Dp) || (dp == Sp && sp == Dp))
+                            {
+                                item.BackColor = Color.LightGreen;
+                            }
+                            // é«˜äº®æ˜¾ç¤ºå…·æœ‰ç›¸åŒåœ°å€çš„é¡¹ç›®
                         }
                         else
                         {
-                            // »Ö¸´ÆäËûÏîÄ¿µÄ±³¾°ÑÕÉ«
+                            // æ¢å¤å…¶ä»–é¡¹ç›®çš„èƒŒæ™¯é¢œè‰²
                             item.BackColor = packetlistBox.BackColor;
                         }
                     }
@@ -314,7 +315,7 @@ namespace sniffer
         }
         private void DisplayHexData(EthernetPacket packet, IPv4Packet looppacket)
         {
-            // ½«Êı¾İ°ü×Ö½ÚÊı×éÒÔÊ®Áù½øÖÆ¸ñÊ½ÏÔÊ¾ÔÚ RichTextBox ÖĞ
+            // å°†æ•°æ®åŒ…å­—èŠ‚æ•°ç»„ä»¥åå…­è¿›åˆ¶æ ¼å¼æ˜¾ç¤ºåœ¨ RichTextBox ä¸­
             StringBuilder hexBuilder = new StringBuilder();
             if (packet != null)
             {
@@ -351,7 +352,7 @@ namespace sniffer
             string pro = protocolBox.Text;
             string ip = ipBox.Text;
 
-            // Ö´ĞĞÊı¾İ°ü¹ıÂË
+            // æ‰§è¡Œæ•°æ®åŒ…è¿‡æ»¤
             FilterPackets(pro, ip);
         }
         private void FilterPackets(string pro, string ip)
@@ -394,16 +395,16 @@ namespace sniffer
                 return;
             }
 
-            // ¸üĞÂ ListView ÖĞµÄÊı¾İ°üÁĞ±í
+            // æ›´æ–° ListView ä¸­çš„æ•°æ®åŒ…åˆ—è¡¨
             UpdateListViewWithFilteredPackets(filteredPackets);
         }
 
         private void UpdateListViewWithFilteredPackets(List<packet_details> packets)
         {
-            // Çå¿Õ ListView
+            // æ¸…ç©º ListView
             packetlistBox.Items.Clear();
 
-            // ½«É¸Ñ¡ºóµÄÊı¾İ°üÌí¼Óµ½ ListView
+            // å°†ç­›é€‰åçš„æ•°æ®åŒ…æ·»åŠ åˆ° ListView
 
             foreach (packet_details packet in packets)
             {
@@ -448,7 +449,7 @@ namespace sniffer
         {
             packetlistBox.Items.Clear();
 
-            // ½«É¸Ñ¡ºóµÄÊı¾İ°üÌí¼Óµ½ ListView
+            // å°†ç­›é€‰åçš„æ•°æ®åŒ…æ·»åŠ åˆ° ListView
 
             foreach (packet_details packet in captured)
             {
