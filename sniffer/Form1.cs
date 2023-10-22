@@ -3,7 +3,6 @@ using PacketDotNet;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using SharpPcap.WinPcap;
 using SharpPcap.LibPcap;
 using System.Text.RegularExpressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -18,7 +17,7 @@ namespace sniffer
 {
     public partial class NetworkSnifferForm : Form
     {
-        private WinPcapDeviceList devices;
+        private CaptureDeviceList devices;
         private ICaptureDevice selectedDevice;
         private List<packet_details> captured = new List<packet_details>();
         private bool is_saved = false;
@@ -29,7 +28,7 @@ namespace sniffer
         private void NetworkSnifferForm_Load(object sender, EventArgs e)
         {
             init_info();
-            devices = WinPcapDeviceList.Instance;
+            devices = CaptureDeviceList.Instance;
             if (devices.Count == 0)
             {
                 MessageBox.Show("未检测到网络适配器。");
@@ -38,22 +37,7 @@ namespace sniffer
 
             foreach (var dev in devices)
             {
-                Regex regex = new Regex("'([^']*)'");
-                string name;
-                if ((name = dev.Interface.FriendlyName) == null)
-                {
-                    if (dev.Description.Contains("loopback"))
-                    {
-                        name = "本地环回";
-                    }
-                    else
-                    {
-                        name = "无名称";
-                    }
-
-                }
-
-                var str = string.Format("【{0}】{1}", name, regex.Match(dev.Description).Groups[1].Value);
+                var str = dev.Description;
                 deviceselectBox.Items.Add(str);
             }
         }
@@ -132,13 +116,13 @@ namespace sniffer
             selectedDevice.OnPacketArrival += (Device, e) =>
             {
                 TimeSpan timearrival = DateTime.Now - captureStartTime;
-                PacketHandler(no, timearrival, e.Packet);
+                PacketHandler(no, timearrival, e.GetPacket());
 
                 no++;
             };
             try
             {
-                selectedDevice.Open(DeviceMode.Promiscuous);
+                selectedDevice.Open(DeviceModes.Promiscuous);
                 selectedDevice.StartCapture();
             }
             catch (PcapException ex)
@@ -154,7 +138,7 @@ namespace sniffer
                 if (rawCapture.LinkLayerType != LinkLayers.Null)
                 {
                     EthernetPacket ethernetPacket = Packet.ParsePacket(rawCapture.LinkLayerType, rawCapture.Data) as EthernetPacket;
-                    IpPacket ipPacket = ethernetPacket.PayloadPacket as IpPacket;
+                    IPPacket ipPacket = ethernetPacket.PayloadPacket as IPPacket;
 
                     if (ipPacket != null)
                     {
@@ -179,7 +163,8 @@ namespace sniffer
                             UdpPacket udpPacket = ipPacket.PayloadPacket as UdpPacket;
                             srcport = udpPacket.SourcePort;
                             dstport = udpPacket.DestinationPort;
-                        }else
+                        }
+                        else
                         {
                             srcport = 0; dstport = 0;
                         }
@@ -302,12 +287,12 @@ namespace sniffer
                             int ind = int.Parse(item.SubItems[0].Text) - 1;
                             int Sp = captured[ind].Sp;
                             int Dp = captured[ind].Dp;
-                            if ((sp == Sp && dp == Dp)||(dp == Sp && sp == Dp))
+                            if ((sp == Sp && dp == Dp) || (dp == Sp && sp == Dp))
                             {
                                 item.BackColor = Color.LightGreen;
                             }
                             // 高亮显示具有相同地址的项目
-                           
+
                         }
                         else
                         {

@@ -53,6 +53,10 @@ namespace sniffer
             columnHeader6 = new ColumnHeader();
             SuspendLayout();
             // 
+            // columnHeader6
+            // 
+            columnHeader6.Text = "No.";
+            // 
             // deviceselectBox
             // 
             deviceselectBox.FormattingEnabled = true;
@@ -95,10 +99,6 @@ namespace sniffer
             packetlistBox.View = View.Details;
             packetlistBox.SelectedIndexChanged += packetlistBox_SelectedIndexChanged;
             // 
-            // columnHeader6
-            // 
-            columnHeader6.Text = "No.";
-            // 
             // columnHeader1
             // 
             columnHeader1.Text = "time";
@@ -135,7 +135,7 @@ namespace sniffer
             // 
             // infoBox
             // 
-            infoBox.Location = new Point(314, 439);
+            infoBox.Location = new Point(273, 439);
             infoBox.Name = "infoBox";
             infoBox.Size = new Size(407, 161);
             infoBox.TabIndex = 4;
@@ -195,9 +195,9 @@ namespace sniffer
             // 
             // infoBox2
             // 
-            infoBox2.Location = new Point(727, 439);
+            infoBox2.Location = new Point(686, 439);
             infoBox2.Name = "infoBox2";
-            infoBox2.Size = new Size(371, 161);
+            infoBox2.Size = new Size(412, 161);
             infoBox2.TabIndex = 11;
             infoBox2.Text = "";
             // 
