@@ -120,14 +120,16 @@ namespace sniffer
 
                 no++;
             };
-            try { 
+            try
+            {
                 selectedDevice.Open(DeviceModes.Promiscuous);
                 selectedDevice.StartCapture();
             }
-            catch(PcapException ex) {
+            catch (PcapException ex)
+            {
                 MessageBox.Show(ex.Message);
             }
-            
+
         }
         private void PacketHandler(int no, TimeSpan time, RawCapture rawCapture)
         {
@@ -149,14 +151,14 @@ namespace sniffer
 
                         int srcport;
                         int dstport;
-                        if (protocol == "TCP")
+                        if (protocol.ToLower() == "tcp")
                         {
                             TcpPacket Tcp = ipPacket.PayloadPacket as TcpPacket;
                             srcport = Tcp.SourcePort;
                             dstport = Tcp.DestinationPort;
 
                         }
-                        else if (protocol == "UDP")
+                        else if (protocol.ToLower() == "udp")
                         {
                             UdpPacket udpPacket = ipPacket.PayloadPacket as UdpPacket;
                             srcport = udpPacket.SourcePort;
@@ -167,7 +169,7 @@ namespace sniffer
                             srcport = 0; dstport = 0;
                         }
                         string detail = Details(srcport, dstport);
-                        captured.Add(new packet_details(no, TimeString, destinationIp, sourceIp, srcport, dstport, protocol,detail, length, ethernetPacket, null));
+                        captured.Add(new packet_details(no, TimeString, destinationIp, sourceIp, srcport, dstport, protocol, detail, length, ethernetPacket, null));
                         string details;
                         //string data = ipPacket.PayloadData.ToString();
                         ListViewItem item = new ListViewItem(new[] { no.ToString(), TimeString, sourceIp,
@@ -208,7 +210,7 @@ namespace sniffer
                         srcport = 0; dstport = 0;
                     }
                     string detail = Details(srcport, dstport);
-                    captured.Add(new packet_details(no, TimeString, destinationIp, sourceIp, srcport, dstport, protocol,detail, length, null, ipPacket));
+                    captured.Add(new packet_details(no, TimeString, destinationIp, sourceIp, srcport, dstport, protocol, detail, length, null, ipPacket));
 
 
                     //string data = ipPacket.PayloadData.ToString();
@@ -221,8 +223,8 @@ namespace sniffer
         }
 
         private string Details(int sp, int dp)
-        {   
-            if(dp == 21 || sp == 21)
+        {
+            if (dp == 21 || sp == 21)
             {
                 return "FTP";
             }
@@ -237,10 +239,12 @@ namespace sniffer
             else if (dp == 25 || sp == 25)
             {
                 return "SMTP";
-            }else if (dp == 80 || sp == 80) 
+            }
+            else if (dp == 80 || sp == 80)
             {
                 return "HTTP";
-            }else if(dp == 443 || sp == 443)
+            }
+            else if (dp == 443 || sp == 443)
             {
                 return "HTTPS";
             }
@@ -274,13 +278,21 @@ namespace sniffer
                     string src = selectedPacket.SourceAddress;
                     string dst = selectedPacket.DestinationAddress;
                     int sp = selectedPacket.Sp;
+                    int dp = selectedPacket.Dp;
 
                     foreach (ListViewItem item in packetlistBox.Items)
                     {
-                        if ((item.SubItems[2].Text == src && item.SubItems[3].Text==dst)|| (item.SubItems[3].Text == src && item.SubItems[2].Text == dst))
+                        if ((item.SubItems[2].Text == src && item.SubItems[3].Text == dst) || (item.SubItems[3].Text == src && item.SubItems[2].Text == dst))
                         {
+                            int ind = int.Parse(item.SubItems[0].Text) - 1;
+                            int Sp = captured[ind].Sp;
+                            int Dp = captured[ind].Dp;
+                            if ((sp == Sp && dp == Dp)||(dp == Sp && sp == Dp))
+                            {
+                                item.BackColor = Color.LightGreen;
+                            }
                             // 高亮显示具有相同地址的项目
-                            item.BackColor = Color.LightGreen ;
+                           
                         }
                         else
                         {
@@ -289,7 +301,7 @@ namespace sniffer
                         }
                     }
                 }
-                
+
             }
         }
         private void DisplayHexData(EthernetPacket packet, IPv4Packet looppacket)
@@ -315,7 +327,7 @@ namespace sniffer
             }
 
             infoBox.Text = hexBuilder.ToString();
-            
+
         }
 
         private void saveFileDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
@@ -404,12 +416,12 @@ namespace sniffer
             public int Sp { get; set; }
             public int Dp { get; set; }
             public string Protocol { get; set; }
-            public string Detail {  get; set; }
+            public string Detail { get; set; }
             public int Length { get; set; }
             public EthernetPacket EthPacket { get; set; }
             public IPv4Packet Looppacket { get; set; }
 
-            public packet_details(int index, string timeString, string destinationAddress, string sourceAddress, int sp, int dp, string protocol,string detail, int length, EthernetPacket packet, IPv4Packet payload)
+            public packet_details(int index, string timeString, string destinationAddress, string sourceAddress, int sp, int dp, string protocol, string detail, int length, EthernetPacket packet, IPv4Packet payload)
             {
                 Index = index;
                 TimeString = timeString;
