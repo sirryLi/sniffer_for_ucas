@@ -3,6 +3,7 @@ using PacketDotNet;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using SharpPcap.WinPcap;
 using SharpPcap.LibPcap;
 using System.Text.RegularExpressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -17,7 +18,7 @@ namespace sniffer
 {
     public partial class NetworkSnifferForm : Form
     {
-        private CaptureDeviceList devices;
+        private WinPcapDeviceList devices;
         private ICaptureDevice selectedDevice;
         private List<packet_details> captured = new List<packet_details>();
         private bool is_saved = false;
@@ -28,7 +29,7 @@ namespace sniffer
         private void NetworkSnifferForm_Load(object sender, EventArgs e)
         {
             init_info();
-            devices = CaptureDeviceList.Instance;
+            devices = WinPcapDeviceList.Instance;
             if (devices.Count == 0)
             {
                 MessageBox.Show("未检测到网络适配器。");
@@ -37,7 +38,22 @@ namespace sniffer
 
             foreach (var dev in devices)
             {
-                var str = dev.Description;
+                Regex regex = new Regex("'([^']*)'");
+                string name;
+                if ((name = dev.Interface.FriendlyName) == null)
+                {
+                    if (dev.Description.Contains("loopback"))
+                    {
+                        name = "本地环回";
+                    }
+                    else
+                    {
+                        name = "无名称";
+                    }
+
+                }
+
+                var str = string.Format("【{0}】{1}", name, regex.Match(dev.Description).Groups[1].Value);
                 deviceselectBox.Items.Add(str);
             }
         }
@@ -116,13 +132,13 @@ namespace sniffer
             selectedDevice.OnPacketArrival += (Device, e) =>
             {
                 TimeSpan timearrival = DateTime.Now - captureStartTime;
-                PacketHandler(no, timearrival, e.GetPacket());
+                PacketHandler(no, timearrival, e.Packet);
 
                 no++;
             };
             try
             {
-                selectedDevice.Open(DeviceModes.Promiscuous);
+                selectedDevice.Open(DeviceMode.Promiscuous);
                 selectedDevice.StartCapture();
             }
             catch (PcapException ex)
@@ -138,7 +154,7 @@ namespace sniffer
                 if (rawCapture.LinkLayerType != LinkLayers.Null)
                 {
                     EthernetPacket ethernetPacket = Packet.ParsePacket(rawCapture.LinkLayerType, rawCapture.Data) as EthernetPacket;
-                    IPPacket ipPacket = ethernetPacket.PayloadPacket as IPPacket;
+                    IpPacket ipPacket = ethernetPacket.PayloadPacket as IpPacket;
 
                     if (ipPacket != null)
                     {
@@ -164,7 +180,11 @@ namespace sniffer
                             srcport = udpPacket.SourcePort;
                             dstport = udpPacket.DestinationPort;
                         }
-                        else
+                        else if(protocol == "ICMPV6")
+                        {
+                            ICMPv6Packet iCMPv6Packet = ipPacket.PayloadPacket as ICMPv6Packet;
+
+                        }else
                         {
                             srcport = 0; dstport = 0;
                         }
@@ -353,7 +373,7 @@ namespace sniffer
             {
                 foreach (packet_details packet in captured)
                 {
-                    if ((packet.DestinationAddress == ip || packet.SourceAddress == ip) && (packet.Protocol.ToLower() == pro.ToLower() || packet.Detail.ToLower() == pro.ToLower()))
+                    if ((packet.DestinationAddress == ip || packet.SourceAddress == ip) && (packet.Protocol == pro || packet.Detail == pro))
                     {
                         filteredPackets.Add(packet);
                     }
@@ -375,7 +395,7 @@ namespace sniffer
                 foreach (packet_details packet in captured)
                 {
 
-                    if (packet.Protocol.ToLower() == pro.ToLower() || packet.Detail.ToLower() == pro.ToLower())
+                    if (packet.Protocol == pro || packet.Detail == pro)
                     {
                         filteredPackets.Add(packet);
                     }
