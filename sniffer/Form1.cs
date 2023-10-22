@@ -3,7 +3,6 @@ using PacketDotNet;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using SharpPcap.WinPcap;
 using SharpPcap.LibPcap;
 using System.Text.RegularExpressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -18,7 +17,7 @@ namespace sniffer
 {
     public partial class NetworkSnifferForm : Form
     {
-        private WinPcapDeviceList devices;
+        private CaptureDeviceList devices;
         private ICaptureDevice selectedDevice;
         private List<packet_details> captured = new List<packet_details>();
         private bool is_saved = false;
@@ -29,7 +28,7 @@ namespace sniffer
         private void NetworkSnifferForm_Load(object sender, EventArgs e)
         {
             init_info();
-            devices = WinPcapDeviceList.Instance;
+            devices = CaptureDeviceList.Instance;
             if (devices.Count == 0)
             {
                 MessageBox.Show("未检测到网络适配器。");
@@ -38,22 +37,7 @@ namespace sniffer
 
             foreach (var dev in devices)
             {
-                Regex regex = new Regex("'([^']*)'");
-                string name;
-                if ((name = dev.Interface.FriendlyName) == null)
-                {
-                    if (dev.Description.Contains("loopback"))
-                    {
-                        name = "本地环回";
-                    }
-                    else
-                    {
-                        name = "无名称";
-                    }
-                    
-                }
-
-                var str = string.Format("【{0}】{1}", name, regex.Match(dev.Description).Groups[1].Value);
+                var str = dev.Description;
                 deviceselectBox.Items.Add(str);
             }
         }
@@ -132,12 +116,12 @@ namespace sniffer
             selectedDevice.OnPacketArrival += (Device, e) =>
             {
                 TimeSpan timearrival = DateTime.Now - captureStartTime;
-                PacketHandler(no, timearrival, e.Packet);
+                PacketHandler(no, timearrival, e.GetPacket());
 
                 no++;
             };
             try { 
-                selectedDevice.Open(DeviceMode.Promiscuous);
+                selectedDevice.Open(DeviceModes.Promiscuous);
                 selectedDevice.StartCapture();
             }
             catch(PcapException ex) {
@@ -152,7 +136,7 @@ namespace sniffer
                 if (rawCapture.LinkLayerType != LinkLayers.Null)
                 {
                     EthernetPacket ethernetPacket = Packet.ParsePacket(rawCapture.LinkLayerType, rawCapture.Data) as EthernetPacket;
-                    IpPacket ipPacket = ethernetPacket.PayloadPacket as IpPacket;
+                    IPPacket ipPacket = ethernetPacket.PayloadPacket as IPPacket;
 
                     if (ipPacket != null)
                     {
@@ -331,7 +315,7 @@ namespace sniffer
             }
 
             infoBox.Text = hexBuilder.ToString();
-
+            
         }
 
         private void saveFileDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
@@ -357,7 +341,7 @@ namespace sniffer
             {
                 foreach (packet_details packet in captured)
                 {
-                    if ((packet.DestinationAddress == ip || packet.SourceAddress == ip) && (packet.Protocol == pro||packet.Detail==pro))
+                    if ((packet.DestinationAddress == ip || packet.SourceAddress == ip) && (packet.Protocol.ToLower() == pro.ToLower() || packet.Detail.ToLower() == pro.ToLower()))
                     {
                         filteredPackets.Add(packet);
                     }
@@ -379,7 +363,7 @@ namespace sniffer
                 foreach (packet_details packet in captured)
                 {
 
-                    if (packet.Protocol == pro || packet.Detail == pro)
+                    if (packet.Protocol.ToLower() == pro.ToLower() || packet.Detail.ToLower() == pro.ToLower())
                     {
                         filteredPackets.Add(packet);
                     }
