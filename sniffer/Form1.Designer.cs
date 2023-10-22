@@ -50,7 +50,9 @@ namespace sniffer
             button1 = new Button();
             button2 = new Button();
             infoBox2 = new RichTextBox();
+
             columnHeader6 = new ColumnHeader();
+
             SuspendLayout();
             // 
             // columnHeader6
@@ -195,12 +197,13 @@ namespace sniffer
             // 
             // infoBox2
             // 
+
             infoBox2.Location = new Point(686, 439);
             infoBox2.Name = "infoBox2";
             infoBox2.Size = new Size(412, 161);
             infoBox2.TabIndex = 11;
             infoBox2.Text = "";
-            // 
+
             // NetworkSnifferForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
