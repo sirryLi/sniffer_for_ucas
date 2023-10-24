@@ -304,6 +304,11 @@ namespace sniffer
                             {
                                 item.BackColor = Color.LightGreen;
                             }
+                            else
+                            {
+                                // 恢复其他项目的背景颜色
+                                item.BackColor = packetlistBox.BackColor;
+                            }
                             // 高亮显示具有相同地址的项目
                         }
                         else
@@ -365,7 +370,7 @@ namespace sniffer
             {
                 foreach (packet_details packet in captured)
                 {
-                    if ((packet.DestinationAddress == ip || packet.SourceAddress == ip) && (packet.Protocol == pro || packet.Detail == pro))
+                    if ((packet.DestinationAddress == ip || packet.SourceAddress == ip) && (packet.Protocol.ToLower() == pro.ToLower() || packet.Detail.ToLower() == pro.ToLower()))
                     {
                         filteredPackets.Add(packet);
                     }
@@ -387,7 +392,7 @@ namespace sniffer
                 foreach (packet_details packet in captured)
                 {
 
-                    if (packet.Protocol == pro || packet.Detail == pro)
+                    if (packet.Protocol.ToLower() == pro.ToLower() || packet.Detail.ToLower() == pro.ToLower())
                     {
                         filteredPackets.Add(packet);
                     }
