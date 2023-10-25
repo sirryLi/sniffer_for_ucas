@@ -282,7 +282,8 @@ namespace sniffer
         {
             if (packetlistBox.SelectedItems.Count > 0)
             {
-                int selectedIndex = packetlistBox.SelectedItems[0].Index;
+                int selectedIndex = int.Parse(packetlistBox.SelectedItems[0].Text)-1;
+
                 if (selectedIndex >= 0 && selectedIndex < captured.Count)
                 {
                     packet_details selectedPacket = captured[selectedIndex];
