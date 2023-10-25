@@ -50,9 +50,10 @@ namespace sniffer
 
         private void deviceselectBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            selectedDevice = devices[deviceselectBox.SelectedIndex];
-            startButton.Enabled = true;
-
+            if (deviceselectBox.SelectedIndex >= 0) {
+                selectedDevice = devices[deviceselectBox.SelectedIndex];
+                startButton.Enabled = true;
+            }
         }
 
         private void startButton_Click(object sender, EventArgs e)
