@@ -1,9 +1,4 @@
 ## 《网络攻防基础》Exp1A——嗅探器设计与实现
-
-李思悦 202318018670045
-
-源代码地址：https://github.com/sirryLi/sniffer_for_ucas/tree/branch1
-
 ------
 
 ### NPS功能实现
