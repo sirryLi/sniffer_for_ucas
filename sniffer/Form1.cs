@@ -50,9 +50,10 @@ namespace sniffer
 
         private void deviceselectBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            selectedDevice = devices[deviceselectBox.SelectedIndex];
-            startButton.Enabled = true;
-
+            if (deviceselectBox.SelectedIndex >= 0) {
+                selectedDevice = devices[deviceselectBox.SelectedIndex];
+                startButton.Enabled = true;
+            }
         }
 
         private void startButton_Click(object sender, EventArgs e)
@@ -116,11 +117,10 @@ namespace sniffer
             selectedDevice.OnPacketArrival += (Device, e) =>
             {
                 TimeSpan timearrival = DateTime.Now - captureStartTime;
-
-                PacketHandler(no, timearrival, e.GetPacket());
-
-
-                no++;
+                if(PacketHandler(no, timearrival, e.GetPacket()))
+                {
+                    no++;
+                }        
             };
             try
             {
@@ -135,7 +135,7 @@ namespace sniffer
             }
 
         }
-        private void PacketHandler(int no, TimeSpan time, RawCapture rawCapture)
+        private bool PacketHandler(int no, TimeSpan time, RawCapture rawCapture)
         {
             if (rawCapture != null)
             {
@@ -185,6 +185,7 @@ namespace sniffer
                                                                     destinationIp, protocol,length.ToString(),detail });
 
                         UpdateTextBox(item);
+                        return true;
                     }
                 }
                 else
@@ -201,15 +202,14 @@ namespace sniffer
 
                     int srcport;
                     int dstport;
-                    if (protocol.ToLower() == "TCP")
+                    if (protocol.ToLower() == "tcp")
                     {
                         TcpPacket Tcp = ipPacket.PayloadPacket as TcpPacket;
                         srcport = Tcp.SourcePort;
                         dstport = Tcp.DestinationPort;
 
                     }
-
-                    else if (protocol.ToLower() == "UDP")
+                    else if (protocol.ToLower() == "udp")
                     {
                         UdpPacket udpPacket = ipPacket.PayloadPacket as UdpPacket;
                         srcport = udpPacket.SourcePort;
@@ -228,8 +228,12 @@ namespace sniffer
                                                                     destinationIp, protocol,length.ToString(),detail });
 
                     UpdateTextBox(item);
+                    return true;
+
                 }
+                return false;
             }
+            return false;
         }
 
         private string Details(int sp, int dp)
@@ -301,6 +305,11 @@ namespace sniffer
                             {
                                 item.BackColor = Color.LightGreen;
                             }
+                            else
+                            {
+                                // 恢复其他项目的背景颜色
+                                item.BackColor = packetlistBox.BackColor;
+                            }
                             // 高亮显示具有相同地址的项目
                         }
                         else
@@ -362,7 +371,7 @@ namespace sniffer
             {
                 foreach (packet_details packet in captured)
                 {
-                    if ((packet.DestinationAddress == ip || packet.SourceAddress == ip) && (packet.Protocol == pro || packet.Detail == pro))
+                    if ((packet.DestinationAddress == ip || packet.SourceAddress == ip) && (packet.Protocol.ToLower() == pro.ToLower() || packet.Detail.ToLower() == pro.ToLower()))
                     {
                         filteredPackets.Add(packet);
                     }
@@ -384,7 +393,7 @@ namespace sniffer
                 foreach (packet_details packet in captured)
                 {
 
-                    if (packet.Protocol == pro || packet.Detail == pro)
+                    if (packet.Protocol.ToLower() == pro.ToLower() || packet.Detail.ToLower() == pro.ToLower())
                     {
                         filteredPackets.Add(packet);
                     }
